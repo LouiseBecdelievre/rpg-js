@@ -1,0 +1,38 @@
+version: 2.1
+
+jobs:
+  yarn-install:
+    docker:
+      - image: node:lts
+    working_directory: ./rpg-express
+    steps:
+      - checkout
+      - run:
+          name: project installation
+          command: yarn install --frozen-lockfile
+      - persist_to_workspace:
+          root: ~/project
+          paths:
+            - node_modules
+  ci:
+    docker:
+      - image: node:lts
+    working_directory: ./rpg-express
+    steps:
+      - checkout
+      - attach_workspace:
+          at: ~/project
+      - run :
+          name: run test and check style
+          command: yarn ci
+
+workflows:
+  version: 2.1
+  build:
+    jobs:
+      - yarn-install
+      - ci:
+          requires:
+            - yarn-install
+  
+  
